@@ -1,25 +1,27 @@
 const express = require('express');
 const fs = require('fs');
-
-
+const morgan = require('morgan')
 
 const app = express();
+
+
+//middlewares
+app.use(morgan('dev'))
 app.use(express.json());
 
 
 let tours = JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`, 'utf-8'));
 
-
-app.get('/api/v1/tours', (req, res) => {
+//tour route handlers
+const getAllTours =(req, res) => {
     res.status(200).json({
         status: 'success',
         data: {
             tours
         }
     });
-});
-
-app.get('/api/v1/tours/:id', (req, res) => {
+}
+const getTour =(req, res) => {
 
     const id = req.params.id;
     const tour = tours.find(tour => tour.id === parseInt(id));
@@ -37,10 +39,9 @@ app.get('/api/v1/tours/:id', (req, res) => {
             tour
         }
     });
-});
+}
 
-
-app.post('/api/v1/tours', (req, res) => {
+const createTour = (req, res) => {
     let newTour = req.body;
     const TourID = tours[tours.length - 1].id + 1;
     newTour = { ...newTour, id: TourID };
@@ -55,10 +56,8 @@ app.post('/api/v1/tours', (req, res) => {
             tour: newTour
         }
     });
-});
-
-
-app.patch('/api/v1/tours/:id', (req, res) => {
+}
+const updateTour =(req, res) => {
 
     const id = req.params.id;
     const tour = tours.find(tour => tour.id === parseInt(id));
@@ -76,10 +75,9 @@ app.patch('/api/v1/tours/:id', (req, res) => {
             tour: 'Updated tour'
         }
     });
-});
+}
 
-
-app.delete('/api/v1/tours/:id', (req, res) => {
+const deleteTour=(req, res) => {
     const id = req.params.id;
     const tour = tours.find(tour => tour.id === parseInt(id));
     
@@ -94,8 +92,70 @@ app.delete('/api/v1/tours/:id', (req, res) => {
         status: 'success',
         data: null
     });
-});
+}
 
+//user route handlers
+const getAllUsers =(req, res) => {
+    res.status(500).json({
+        status:'error',
+        message:'this endpoint is not implemented yet'
+    });
+}
+const getUser =(req, res) => {
+    res.status(500).json({
+        status:'error',
+        message:'this endpoint is not implemented yet'
+    });
+}
+const createUser =(req, res) => {
+    res.status(500).json({
+        status:'error',
+        message:'this endpoint is not implemented yet'
+    });
+}
+const updateUser =(req, res) => {
+    res.status(500).json({
+        status:'error',
+        message:'this endpoint is not implemented yet'
+    });
+}
+const deleteUsers =(req, res) => {
+    res.status(500).json({
+        status:'error',
+        message:'this endpoint is not implemented yet'
+    });
+}
+
+//routes
+const tourRouter = express.Router();
+const userRouter = express.Router();
+
+//tour routes
+tourRouter.route('/')
+.get(getAllTours)
+.post(createTour);
+
+tourRouter.route('/:id')
+.get( getTour)
+.patch( updateTour )
+.delete(deleteTour );
+//user routes
+userRouter.route('/')
+.get(getAllUsers)
+.post(createUser);
+
+userRouter.route('/:id')
+.get( getUser)
+.patch( updateUser )
+.delete(deleteUser );
+
+
+//route middleware
+app.use('/api/v1/tours',tourRouter);
+app.use('/api/v1/users',userRouter);
+
+
+//start server 
 app.listen(3000, () => {
     console.log('Server running on port 3000 , Link: http://localhost:3000');
 });
